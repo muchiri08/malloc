@@ -58,7 +58,11 @@ void chunk_list_insert(Chunk_List *list, void *start, size_t size) {
 }
 
 void chunk_list_remove(Chunk_List *list, size_t index) {
-  assert(false && "TODO: chunk_list_remove is not implemented!");
+  assert(index < list->count);
+  for(size_t i = index; i < list->count - 1; ++i) {
+    list->chunks[i] = list->chunks[i + 1];
+  }
+  list->count -= 1;
 }
 
 char heap[HEAP_CAP] = {0};
@@ -98,5 +102,6 @@ int main() {
     }
   }
   chunk_list_dump(&alloced_chunks);
+  chunk_list_dump(&freed_chunks);
   return 0;
 }
