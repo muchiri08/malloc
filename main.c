@@ -4,8 +4,7 @@
 #include <stdio.h>
 
 #define HEAP_CAP 640000
-#define HEAP_ALLOCED_CAP 1024
-#define HEAP_FREED_CAP 1024
+#define CHUNK_LIST_CAP 1024
 
 typedef struct {
   void *start;
@@ -14,7 +13,7 @@ typedef struct {
 
 typedef struct {
   size_t count;
-  Chunk chunks[HEAP_ALLOCED_CAP];
+  Chunk chunks[CHUNK_LIST_CAP];
 } Chunk_List;
 
 void chunk_list_dump(const Chunk_List *list) {
@@ -25,12 +24,22 @@ void chunk_list_dump(const Chunk_List *list) {
   }
 }
 
-int chunk_list_find(const Chunk_List *list, void *ptr) {
+int chunk_list_find(const Chunk_List *list, void *start) {
   assert(false && "TODO: chunk_list_find is not implemented!");
 }
 
-void chunk_list_insert(Chunk_List *list, void *ptr, size_t size) {
-  assert(false && "TODO: chunk_list_insert is not implemented!");
+void chunk_list_insert(Chunk_List *list, void *start, size_t size) {
+  assert(list->count < CHUNK_LIST_CAP);
+  list->chunks[list->count].start = start;
+  list->chunks[list->count].size = size;
+
+  for(size_t i = list->count; i > 0 && list->chunks[i].start < list->chunks[i - 1].start ; --i) {
+    const Chunk temp = list->chunks[i];
+    list->chunks[i] = list->chunks[i - 1];
+    list->chunks[i - 1] = temp;
+  }
+
+  list->count += 1;
 }
 
 void chunk_list_remove(Chunk_List *list, size_t index) {
